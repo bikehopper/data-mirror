@@ -1,0 +1,28 @@
+{
+  "name": "data-mirror",
+  "version": "1.0.0",
+  "description": "Node app that mirrors GTFS and OSM data sources for rest of the services",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bikehopper/data-mirror.git"
+  },
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE.agpl3.0.txt",
+  "bugs": {
+    "url": "https://github.com/bikehopper/data-mirror/issues"
+  },
+  "homepage": "https://github.com/bikehopper/data-mirror#readme",
+  "dependencies": {
+    "fastify": "^5.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.5.2",
+    "typescript": "^5.9.2"
+  }
+}
