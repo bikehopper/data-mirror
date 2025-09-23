@@ -26,7 +26,7 @@ export const updateFiles = async (): Promise<void> => {
   // Intentionally using sync IO here
   // Avoid dealing with edge-cases of file-write being in-progress while a request comes in
   if (existsSync(DATA_PATH)) {
-    rmSync(DATA_PATH);
+    rmSync(DATA_PATH, {recursive: true});
   } else {
     mkdirSync(DATA_PATH);
   }
