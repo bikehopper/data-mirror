@@ -45,6 +45,18 @@ app.get('/checksums', (req, res) => {
   res.json(CHECKSUMS);
 });
 
+app.post('/update-data', async (req, res) => {
+  const reqIp = req.socket.remoteAddress;
+
+  // Only update data when request comes in from localhost
+  if (reqIp && (reqIp === 'localhost' || reqIp === '127.0.0.1')) {
+    await updateFiles();
+    res.sendStatus(200);
+  } else {
+    res.sendStatus(403);
+  }
+});
+
 
 // Start th server
 app.listen(PORT, () => {

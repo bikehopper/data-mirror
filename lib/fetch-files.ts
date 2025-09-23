@@ -10,7 +10,13 @@ export const CHECKSUMS: Record<'gtfs' | 'osm', string | null> = {
 
 export const DATA_PATH = path.join(process.cwd(), '/data');
 
+let isUpdating = false;
 export const updateFiles = async (): Promise<void> => {
+  if (isUpdating) {
+    return;
+  }
+
+  isUpdating = true;
   const [gtfsZip, osmPbf] = await Promise.all([
     fetchBlob(GTFS_URL),
     fetchBlob(OSM_PBF_URL),
@@ -31,6 +37,8 @@ export const updateFiles = async (): Promise<void> => {
   mkdirSync(DATA_PATH);
   fs.writeFileSync(path.join(DATA_PATH, 'gtfs.zip'), gtfsZip);
   fs.writeFileSync(path.join(DATA_PATH, 'osm.pbf'), osmPbf);
+
+  isUpdating = false;
 }
 
 
