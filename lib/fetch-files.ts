@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { GTFS_URL, OSM_PBF_URL } from './env.js';
+import { GTFS_URL, OSM_PBF_URL } from '../env.js';
 import path from 'node:path';
 import fs, { existsSync, mkdirSync, rmSync } from 'node:fs';
 
