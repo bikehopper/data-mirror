@@ -27,9 +27,8 @@ export const updateFiles = async (): Promise<void> => {
   // Avoid dealing with edge-cases of file-write being in-progress while a request comes in
   if (existsSync(DATA_PATH)) {
     rmSync(DATA_PATH, {recursive: true});
-  } else {
-    mkdirSync(DATA_PATH);
   }
+  mkdirSync(DATA_PATH);
   fs.writeFileSync(path.join(DATA_PATH, 'gtfs.zip'), gtfsZip);
   fs.writeFileSync(path.join(DATA_PATH, 'osm.pbf'), osmPbf);
 }
