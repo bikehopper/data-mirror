@@ -1,7 +1,9 @@
-import { createHash } from 'node:crypto';
 import { GTFS_URL, OSM_PBF_URL } from '../env.js';
 import path from 'node:path';
 import fs, { existsSync, mkdirSync, rmSync } from 'node:fs';
+import { calcChecksum } from './calc-checksum.js';
+import { fetchBlob } from './fetch-blob.js';
+import logger from './logger.js';
 
 export const CHECKSUMS: Record<'gtfs' | 'osm', string | null> = {
   gtfs: null,
@@ -17,17 +19,15 @@ export const updateFiles = async (): Promise<void> => {
   }
 
   isUpdating = true;
-  const [gtfsZip, osmPbf] = await Promise.all([
-    fetchBlob(GTFS_URL),
-    fetchBlob(OSM_PBF_URL),
-  ]);
+  const gtfsZip = await fetchBlob(GTFS_URL, logger.info);
+  const osmPbf = await fetchBlob(OSM_PBF_URL, logger.info);
 
-  console.log('Finished fetching data');
+  logger.info('Finished fetching data');
 
   CHECKSUMS.gtfs = calcChecksum(gtfsZip);
   CHECKSUMS.osm = calcChecksum(osmPbf);
 
-  console.log(JSON.stringify(CHECKSUMS, null, 2));
+  logger.info(JSON.stringify(CHECKSUMS, null, 2));
 
   // Intentionally using sync IO here
   // Avoid dealing with edge-cases of file-write being in-progress while a request comes in
@@ -40,22 +40,3 @@ export const updateFiles = async (): Promise<void> => {
 
   isUpdating = false;
 }
-
-
-const fetchBlob = async (url: string): Promise<Buffer> => { 
-  console.log(`Dowloading from ${url}`);
-  const res = await fetch(url);
-  if (res.status === 200) {
-    const binary = await res.arrayBuffer();
-    return Buffer.from(binary);
-  } else {
-    throw new Error(`Fetch from ${url} failed with status code ${res.status}`);
-  }
-}
-
-const calcChecksum = (buf: Buffer): string => {
-  const hasher = createHash('sha256');
-  hasher.update(buf);
-  return hasher.digest('hex');
-};
-
