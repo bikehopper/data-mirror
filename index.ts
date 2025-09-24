@@ -32,6 +32,7 @@ app.get('/gtfs.zip', (req, res) => {
   }
 
   res.setHeader('ETag', `"${CHECKSUMS.gtfs}"`);
+  res.setHeader('Content-Type', 'application/octet-stream');
   res.sendFile(path.join(DATA_PATH, 'gtfs.zip'));
 });
 
