@@ -19,8 +19,8 @@ export const updateFiles = async (): Promise<void> => {
   }
 
   isUpdating = true;
-  const gtfsZip = await fetchBlob(GTFS_URL, logger.info);
-  const osmPbf = await fetchBlob(OSM_PBF_URL, logger.info);
+  const gtfsZip = await fetchBlob(GTFS_URL, (value: string) => logger.info(value));
+  const osmPbf = await fetchBlob(OSM_PBF_URL, (value: string) => logger.info(value));
 
   logger.info('Finished fetching data');
 
