@@ -50,10 +50,10 @@ app.get('/checksums', (req, res) => {
 });
 
 app.post('/update-data', async (req, res) => {
-  const reqIp = req.socket.remoteAddress;
-
+  const reqIp = req.ip;
+  logger.info(`reqIp for /update-data: ${reqIp}`);
   // Only update data when request comes in from localhost
-  if (reqIp && (reqIp === 'localhost' || reqIp === '127.0.0.1')) {
+  if (reqIp && reqIp === '::ffff:127.0.0.1') {
     await updateFiles();
     res.sendStatus(200);
   } else {
