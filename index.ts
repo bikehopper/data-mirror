@@ -29,7 +29,9 @@ app.get('/gtfs.zip', (req, res) => {
   if (CHECKSUMS.gtfs == null) {
     res.sendStatus(404);
     return;
-  } 
+  }
+
+  res.setHeader('ETag', CHECKSUMS.gtfs);
   res.sendFile(path.join(DATA_PATH, 'gtfs.zip'));
 });
 
@@ -38,6 +40,7 @@ app.get('/osm.pbf', (req, res) => {
     res.sendStatus(404);
     return;
   }
+  res.setHeader('ETag', CHECKSUMS.osm);
   res.sendFile(path.join(DATA_PATH, 'osm.pbf'));
 });
 
