@@ -53,7 +53,7 @@ app.post('/update-data', async (req, res) => {
   const reqIp = req.ip;
   logger.info(`reqIp for /update-data: ${reqIp}`);
   // Only update data when request comes in from localhost
-  if (reqIp && reqIp === '::ffff:127.0.0.1') {
+  if (reqIp && (reqIp === '::ffff:127.0.0.1' || reqIp === '::1')) {
     await updateFiles();
     res.sendStatus(200);
   } else {
