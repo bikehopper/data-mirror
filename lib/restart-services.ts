@@ -15,5 +15,8 @@ export const restartServices = async (): Promise<void> => {
     if (res.status !== 200) {
       logger.error('Nightly Data refresh failed');
     }
+
+    const json = await res.json();
+    logger.info(JSON.stringify(json, null, 2));
   }
 };
