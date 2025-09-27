@@ -5,6 +5,7 @@ import { PORT } from './env.js';
 import { pinoHttp } from 'pino-http';
 import logger from './lib/logger.js';
 import helmet from 'helmet';
+import { restartServices } from './lib/restart-services.js';
 
 updateFiles();
 const app = express();
@@ -16,6 +17,12 @@ const httpLogger = pinoHttp({
 app.use((req, res, next) => {
   httpLogger(req, res);
   next();
+});
+
+// Used by coolify for healthchecks
+app.get('/health', (req, res) => {
+  res.sendStatus(200);
+  res.end();
 });
 
 // basic api hardening
@@ -55,6 +62,7 @@ app.post('/update-data', async (req, res) => {
   // Only update data when request comes in from localhost
   if (reqIp && (reqIp === '::ffff:127.0.0.1' || reqIp === '::1')) {
     await updateFiles();
+    await restartServices();
     res.sendStatus(200);
   } else {
     res.sendStatus(403);
