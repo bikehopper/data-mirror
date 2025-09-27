@@ -11,8 +11,8 @@ program
   .name('bikehopper/sync-data')
   .description('Download Bikehopper source data to initialize services')
   .option(
-    '-o, --outDir <string>', 'output fir relative path', 
-    (value: string) => path.join(process.cwd(), value),
+    '-o, --outDir <string>', 'output directoy relative path', 
+    (value: string) => path.resolve(value),
     path.join(process.cwd(), '/data')
   )
   .option(
