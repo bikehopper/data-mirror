@@ -7,7 +7,7 @@ export const restartServices = async (): Promise<void> => {
       'https://coolify.cool-bikehopper.org/api/v1/deploy?tag=nightly-data-refresh&force=true', 
       {
         headers: {
-          Authorization: REFRESH_KEY,
+          Authorization: `Bearer ${REFRESH_KEY}`,
         },
       }
     );
