@@ -4,7 +4,7 @@ import logger from './logger.js';
 export const restartServices = async (): Promise<void> => {
   if (REFRESH_KEY) {
     const res = await fetch(
-      'https://coolify.cool-bikehopper.org/api/v1/deploy?tag=nightly-data-refresh', 
+      'https://coolify.cool-bikehopper.org/api/v1/deploy?tag=nightly-data-refresh&force=true', 
       {
         headers: {
           Authorization: REFRESH_KEY,
