@@ -64,7 +64,7 @@ const updateFileIfNecessary = async (filename: 'gtfs.zip' | 'osm.pbf' | 'region-
   }
 
   if (needsDownload) {
-    const buffer = await fetchBlob(options.rootUrl+'/'+filename, console.log);
+    const buffer = await fetchBlob(options.rootUrl+'/'+filename, console.log, true);
     writeFileSync(filepath, buffer);
   } else {
     console.log(`${filepath} does not need update`);

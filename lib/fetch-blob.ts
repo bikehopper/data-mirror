@@ -1,10 +1,10 @@
-export const fetchBlob = async (url: string, logger: (msg: string) => void): Promise<Buffer> => {
+export const fetchBlob = async (url: string, logger: (msg: string) => void, skipProgress: boolean = false): Promise<Buffer> => {
   logger(`Dowloading from ${url}`);
 
   const res = await fetch(url);
   if (res.status === 200) {
     const responseLength = parseInt(res.headers.get('content-length') || '0');
-    if (responseLength > 0 && res.body) {
+    if (responseLength > 0 && res.body && !skipProgress) {
       let downloaded = 0;
       let lastProgress = 0;
       const binary = new Uint8Array(responseLength);
