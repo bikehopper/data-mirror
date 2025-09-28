@@ -18,11 +18,16 @@ program
   .option(
     '-r, --rootUrl <string>', '(Optional) root url for making requests for the file',
     'https://data.cool-bikehopper.org'
+  )
+  .option(
+    '-f, --files <string>', '(Optional) comma separated list of which resources should be downloaded',
+    'gtfs,osm'
   );
 
 program.parse();
 
 const options = program.opts();
+const filedToDownload: string[] = options.files.splt(',');
 const checksumUrl = path.join(options.rootUrl, '/checksums');
 const checksumRes = await fetch(checksumUrl);
 const json = await checksumRes.json() as {gtfs: string | null, osm: string | null};
@@ -59,5 +64,10 @@ const updateFileIfNecessary = async (filename: 'gtfs.zip' | 'osm.pbf') => {
   }
 };
 
-await updateFileIfNecessary('gtfs.zip');
-await updateFileIfNecessary('osm.pbf');
+if (filedToDownload.includes('gtfs')){
+  await updateFileIfNecessary('gtfs.zip');
+}
+
+if (filedToDownload.includes('osm')) {
+  await updateFileIfNecessary('osm.pbf');
+}
