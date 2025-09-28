@@ -27,7 +27,7 @@ program
 program.parse();
 
 const options = program.opts();
-const filedToDownload: string[] = options.files.splt(',');
+const filedToDownload: string[] = options.files.split(',');
 const checksumUrl = path.join(options.rootUrl, '/checksums');
 const checksumRes = await fetch(checksumUrl);
 const json = await checksumRes.json() as {gtfs: string | null, osm: string | null};
