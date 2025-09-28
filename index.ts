@@ -52,6 +52,24 @@ app.get('/osm.pbf', (req, res) => {
   res.sendFile(path.join(DATA_PATH, 'osm.pbf'));
 });
 
+app.get('/region-config.json', (req, res) => {
+  if (CHECKSUMS.region_config == null) {
+    res.sendStatus(404);
+    return;
+  }
+  res.setHeader('ETag', `"${CHECKSUMS.region_config}"`);
+  res.sendFile(path.join(DATA_PATH, 'region-config.json'));
+});
+
+app.get('/elevators.csv', (req, res) => {
+  if (CHECKSUMS.region_config == null) {
+    res.sendStatus(404);
+    return;
+  }
+  res.setHeader('ETag', `"${CHECKSUMS.elevators}"`);
+  res.sendFile(path.join(DATA_PATH, 'elevators.csv'));
+});
+
 app.get('/checksums', (req, res) => {
   res.json(CHECKSUMS);
 });

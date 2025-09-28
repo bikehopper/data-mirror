@@ -6,6 +6,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { calcChecksum } from '../lib/calc-checksum.js';
 import { fetchBlob } from '../lib/fetch-blob.js';
+import type { CHECKSUMS } from '../lib/fetch-files.js';
 
 program
   .name('bikehopper/sync-data')
@@ -30,18 +31,24 @@ const options = program.opts();
 const filedToDownload: string[] = options.files.split(',');
 const checksumUrl = path.join(options.rootUrl, '/checksums');
 const checksumRes = await fetch(checksumUrl);
-const json = await checksumRes.json() as {gtfs: string | null, osm: string | null};
+const json = await checksumRes.json() as typeof CHECKSUMS;
 const gtfsHash = json.gtfs;
 const osmHash = json.osm;
+const regionConfigHash = json.region_config;
+const elevatorsHash = json.elevators;
 assert(gtfsHash != null)
 assert(osmHash != null)
+assert(regionConfigHash != null)
+assert(elevatorsHash != null)
 
 const checksumsLookup = {
   'gtfs.zip': gtfsHash,
   'osm.pbf': osmHash,
+  'region-config.json': regionConfigHash,
+  'elevators.csv': elevatorsHash,
 };
 
-const updateFileIfNecessary = async (filename: 'gtfs.zip' | 'osm.pbf') => {
+const updateFileIfNecessary = async (filename: 'gtfs.zip' | 'osm.pbf' | 'region-config.json' | 'elevators.csv') => {
   if (!existsSync(options.outDir)){
     mkdirSync(options.outDir)
   }
@@ -70,4 +77,12 @@ if (filedToDownload.includes('gtfs')){
 
 if (filedToDownload.includes('osm')) {
   await updateFileIfNecessary('osm.pbf');
+}
+
+if (filedToDownload.includes('region_config')) {
+  await updateFileIfNecessary('region-config.json');
+}
+
+if (filedToDownload.includes('elevators')) {
+  await updateFileIfNecessary('elevators.csv');
 }
