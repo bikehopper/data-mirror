@@ -6,6 +6,7 @@ import { pinoHttp } from 'pino-http';
 import logger from './lib/logger.js';
 import helmet from 'helmet';
 import { restartServices } from './lib/restart-services.js';
+import { FILES, type SourceDataFileType } from './files.js';
 
 updateFiles();
 const app = express();
@@ -32,46 +33,27 @@ app.use(helmet());
  * ROUTES
  */
 
-app.get('/gtfs.zip', (req, res) => {
-  if (CHECKSUMS.gtfs == null) {
-    res.sendStatus(404);
-    return;
-  }
+for(const [key, fileInfo] of Object.entries(FILES)) {
+  app.get(`/${fileInfo.name}`, (req, res) => {
+    const fileType = key as SourceDataFileType;
+    const checksum = CHECKSUMS.get(fileType);
+    if (!checksum) {
+      res.sendStatus(404);
+      return;
+    }
 
-  res.setHeader('ETag', `"${CHECKSUMS.gtfs}"`);
-  res.setHeader('Content-Type', 'application/octet-stream');
-  res.sendFile(path.join(DATA_PATH, 'gtfs.zip'));
-});
-
-app.get('/osm.pbf', (req, res) => {
-  if (CHECKSUMS.osm == null) {
-    res.sendStatus(404);
-    return;
-  }
-  res.setHeader('ETag', `"${CHECKSUMS.osm}"`);
-  res.sendFile(path.join(DATA_PATH, 'osm.pbf'));
-});
-
-app.get('/region-config.json', (req, res) => {
-  if (CHECKSUMS.region_config == null) {
-    res.sendStatus(404);
-    return;
-  }
-  res.setHeader('ETag', `"${CHECKSUMS.region_config}"`);
-  res.sendFile(path.join(DATA_PATH, 'region-config.json'));
-});
-
-app.get('/elevators.csv', (req, res) => {
-  if (CHECKSUMS.region_config == null) {
-    res.sendStatus(404);
-    return;
-  }
-  res.setHeader('ETag', `"${CHECKSUMS.elevators}"`);
-  res.sendFile(path.join(DATA_PATH, 'elevators.csv'));
-});
+    res.setHeader('ETag', `"${checksum}"`);
+    res.setHeader('Content-Type', 'application/octet-stream');
+    res.sendFile(path.join(DATA_PATH, fileInfo.name));
+  });
+}
 
 app.get('/checksums', (req, res) => {
-  res.json(CHECKSUMS);
+  const json: any = {};
+  for (const [fileType, checksum] of CHECKSUMS.entries()){
+    json[fileType] = checksum;
+  }
+  res.json(json);
 });
 
 app.post('/update-data', async (req, res) => {

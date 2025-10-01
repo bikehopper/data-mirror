@@ -4,15 +4,9 @@ import fs, { existsSync, mkdirSync, rmSync } from 'node:fs';
 import { calcChecksum } from './calc-checksum.js';
 import { fetchBlob } from './fetch-blob.js';
 import logger from './logger.js';
+import { FILES, type SourceDataFileType } from '../files.js';
 
-export type SourceDataFileType = 'gtfs' | 'osm' | 'region_config' | 'elevators';
-
-export const CHECKSUMS: Record<SourceDataFileType, string | null> = {
-  gtfs: null,
-  osm: null,
-  region_config: null,
-  elevators: null,
-};
+export const CHECKSUMS: Map<SourceDataFileType, string> = new Map();
 
 export const DATA_PATH = path.join(process.cwd(), '/data');
 
@@ -23,17 +17,19 @@ export const updateFiles = async (): Promise<void> => {
   }
 
   isUpdating = true;
-  const gtfsZip = await fetchBlob(GTFS_URL, (value: string) => logger.info(value));
-  const osmPbf = await fetchBlob(OSM_PBF_URL, (value: string) => logger.info(value));
-  const regionConfig = await fetchBlob(REGION_CONFIG_URL, (value: string) => logger.info(value), true);
-  const elevators = await fetchBlob(ELEVATORS_CSV_URL, (value: string) => logger.info(value), true);
+  // Fetch Files from sources
+  const fileBuffers: Map<SourceDataFileType, Buffer> = new Map();
+  for (const [fileType, fileInfo] of Object.entries(FILES)) {
+    const buff = await fetchBlob(fileInfo.source, (value: string) => logger.info(value));
+    fileBuffers.set(fileType as SourceDataFileType, buff);
+  }
 
   logger.info('Finished fetching data');
 
-  CHECKSUMS.gtfs = calcChecksum(gtfsZip);
-  CHECKSUMS.osm = calcChecksum(osmPbf);
-  CHECKSUMS.region_config = calcChecksum(regionConfig);
-  CHECKSUMS.elevators = calcChecksum(elevators);
+  // Calculate checksums
+  for(const [fileType, buffer] of fileBuffers.entries()){
+    CHECKSUMS.set(fileType, calcChecksum(buffer));
+  }
 
   logger.info(JSON.stringify(CHECKSUMS, null, 2));
 
@@ -43,10 +39,9 @@ export const updateFiles = async (): Promise<void> => {
     rmSync(DATA_PATH, {recursive: true});
   }
   mkdirSync(DATA_PATH);
-  fs.writeFileSync(path.join(DATA_PATH, 'gtfs.zip'), gtfsZip);
-  fs.writeFileSync(path.join(DATA_PATH, 'osm.pbf'), osmPbf);
-  fs.writeFileSync(path.join(DATA_PATH, 'region-config.json'), regionConfig);
-  fs.writeFileSync(path.join(DATA_PATH, 'elevators.csv'), elevators);
+  for(const [fileType, buffer] of fileBuffers.entries()){
+    fs.writeFileSync(path.join(DATA_PATH, FILES[fileType].name), buffer);
+  }
 
   isUpdating = false;
 }
