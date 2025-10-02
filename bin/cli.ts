@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
+import { extract } from 'tar';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { calcChecksum } from '../lib/calc-checksum.js';
@@ -33,7 +34,6 @@ const checksumRes = await fetch(checksumUrl);
 const checksums = await checksumRes.json() as Record<SourceDataFileType, string>;
 
 const updateFileIfNecessary = async (fileType: SourceDataFileType) => {
-
   const filename = FILES[fileType].name;
   if (!existsSync(options.outDir)){
     mkdirSync(options.outDir)
@@ -54,6 +54,12 @@ const updateFileIfNecessary = async (fileType: SourceDataFileType) => {
   if (needsDownload) {
     const buffer = await fetchBlob(options.rootUrl+'/'+filename, console.log, true);
     writeFileSync(filepath, buffer);
+
+    // special case for extracting elevation tarball
+    if (fileType === 'elevation') {
+      await extract({file: filepath, cwd: options.outDir});
+    }
+
   } else {
     console.log(`${filepath} does not need update`);
   }
