@@ -8,5 +8,7 @@ export const REGION_CONFIG_URL: string = process.env.REGION_CONFIG_URL ||
   'https://raw.githubusercontent.com/bikehopper/manual-datafiles/refs/heads/main/region-config.json';
 export const ELEVATORS_CSV_URL: string = process.env.ELEVATORS_CSV_URL || 
   'https://raw.githubusercontent.com/bikehopper/manual-datafiles/refs/heads/main/elevators.csv';
+export const ELEVATION_URL: string = process.env.ELEVATION_URL ||
+  'https://github.com/bikehopper/manual-datafiles/raw/refs/heads/main/elevation.tgz';
 
 export const REFRESH_KEY: string = process.env.REFRESH_KEY || '';

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 import { program } from 'commander';
-import assert from 'node:assert';
+import { extract } from 'tar';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { calcChecksum } from '../lib/calc-checksum.js';
 import { fetchBlob } from '../lib/fetch-blob.js';
-import type { CHECKSUMS } from '../lib/fetch-files.js';
+import { FILES, type SourceDataFileType } from '../files.js';
 
 program
   .name('bikehopper/sync-data')
@@ -28,27 +28,13 @@ program
 program.parse();
 
 const options = program.opts();
-const filedToDownload: string[] = options.files.split(',');
+const filesToDownload: SourceDataFileType[] = options.files.split(',');
 const checksumUrl = path.join(options.rootUrl, '/checksums');
 const checksumRes = await fetch(checksumUrl);
-const json = await checksumRes.json() as typeof CHECKSUMS;
-const gtfsHash = json.gtfs;
-const osmHash = json.osm;
-const regionConfigHash = json.region_config;
-const elevatorsHash = json.elevators;
-assert(gtfsHash != null)
-assert(osmHash != null)
-assert(regionConfigHash != null)
-assert(elevatorsHash != null)
+const checksums = await checksumRes.json() as Record<SourceDataFileType, string>;
 
-const checksumsLookup = {
-  'gtfs.zip': gtfsHash,
-  'osm.pbf': osmHash,
-  'region-config.json': regionConfigHash,
-  'elevators.csv': elevatorsHash,
-};
-
-const updateFileIfNecessary = async (filename: 'gtfs.zip' | 'osm.pbf' | 'region-config.json' | 'elevators.csv') => {
+const updateFileIfNecessary = async (fileType: SourceDataFileType) => {
+  const filename = FILES[fileType].name;
   if (!existsSync(options.outDir)){
     mkdirSync(options.outDir)
   }
@@ -57,32 +43,28 @@ const updateFileIfNecessary = async (filename: 'gtfs.zip' | 'osm.pbf' | 'region-
   if (!existsSync(filepath)) {
     needsDownload = true;
   } else {
-    const checksum = calcChecksum(Buffer.from(readFileSync(filepath)));
-    if (checksum !== checksumsLookup[filename]) {
-      needsDownload = true;
+    if (checksums[fileType]) {
+      const checksum = calcChecksum(Buffer.from(readFileSync(filepath)));
+      if (checksum !== checksums[fileType]) {
+        needsDownload = true;
+      }
     }
   }
 
   if (needsDownload) {
     const buffer = await fetchBlob(options.rootUrl+'/'+filename, console.log, true);
     writeFileSync(filepath, buffer);
+
+    // special case for extracting elevation tarball
+    if (fileType === 'elevation') {
+      await extract({file: filepath, cwd: options.outDir});
+    }
+
   } else {
     console.log(`${filepath} does not need update`);
   }
 };
 
-if (filedToDownload.includes('gtfs')){
-  await updateFileIfNecessary('gtfs.zip');
-}
-
-if (filedToDownload.includes('osm')) {
-  await updateFileIfNecessary('osm.pbf');
-}
-
-if (filedToDownload.includes('region_config')) {
-  await updateFileIfNecessary('region-config.json');
-}
-
-if (filedToDownload.includes('elevators')) {
-  await updateFileIfNecessary('elevators.csv');
+for(const file of filesToDownload) {
+  await updateFileIfNecessary(file);
 }
