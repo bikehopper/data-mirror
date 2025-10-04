@@ -1,6 +1,6 @@
 {
   "name": "@bikehopper/data-mirror",
-  "version": "4.3.0",
+  "version": "4.4.0",
   "description": "Node app that mirrors GTFS and OSM data sources for rest of the services",
   "main": "index.js",
   "type": "module",
