@@ -18,7 +18,7 @@ program
   )
   .option(
     '-r, --rootUrl <string>', '(Optional) root url for making requests for the file',
-    'https://data.cool-bikehopper.org'
+    'https://data.bikehopper.org'
   )
   .option(
     '-f, --files <string>', '(Optional) comma separated list of which resources should be downloaded',
