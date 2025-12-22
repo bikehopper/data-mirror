@@ -1,11 +1,18 @@
-const MIN_KEYS = 3;
+const MIN_KEYS = 6;
+const HISTORY_LENGTH = 3;
+
+const MAX_ITER = 100;
 
 export class ApiKeyPool {
-  private lastidx: number | null = null;
-  
+  private history = new Int32Array(HISTORY_LENGTH).fill(-1);
+  private historyTop = -1;
+
+  private keys: string[];
+
   constructor(
-    private keys: string[]
+    keys: string[] | undefined
   ){
+    this.keys = keys || [];
     if (this.keys.length < MIN_KEYS) {
       throw new Error(`Passed ${this.keys.length} keys into ApiKeyPool. Minimum ${MIN_KEYS} keys required`);
     }
@@ -23,12 +30,21 @@ export class ApiKeyPool {
 
   private randomIdxNoRepeat(): number {
     let idx = this.randomIdx();
-    while (idx === this.lastidx) {
+
+    let itrCt = 0;
+    while (this.isInHistory(idx) && itrCt < MAX_ITER) {
       idx = this.randomIdx();
+      itrCt++;
     }
 
-    this.lastidx = idx;
+    // Circular buffer to keep track of last HISTORY_LENGTH keys
+    this.historyTop = (this.historyTop + 1) % this.history.length;
+    this.history[this.historyTop] = idx;
     return idx;
+  }
+
+  private isInHistory(idx: number): boolean {
+    return this.history.indexOf(idx) !== -1;
   }
 
   private randomIdx(): number {

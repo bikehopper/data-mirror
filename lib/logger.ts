@@ -7,7 +7,7 @@ const options: pino.LoggerOptions<never, boolean> = {
 
 if (debugMode) {
   options.transport =  {
-    target: 'pino-http-print',
+    target: 'pino-pretty',
     options: {
       all: true,
       translateTime: true,
