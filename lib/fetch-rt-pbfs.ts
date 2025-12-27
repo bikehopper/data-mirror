@@ -51,7 +51,6 @@ const updateRealtimePbfs = async (): Promise<void> => {
     return;
   }
 
-  console.log('updating!');
   updatePromise = new ControlablePromise<void>();
 
   try {
