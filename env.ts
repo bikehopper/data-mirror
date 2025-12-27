@@ -18,4 +18,15 @@ export const GTFS_RT_TRIP_UPDATES_URL_TEMPLATE = 'http://api.511.org/transit/tri
 export const GTFS_RT_VEHICLE_POSITIONS_URL_TEMPLATE = 'http://api.511.org/transit/vehiclepositions?api_key={API_KEY}&agency=RG';
 export const GTFS_RT_SERVICE_ALERTS_URL_TEMPLATE = 'http://api.511.org/transit/servicealerts?api_key={API_KEY}&agency=RG';
 
+export const GTFS_RT_UPDATE_INTERVAL_MS = ((): number => {
+  const envInterval = parseInt(process.env.GTFS_RT_UPDATE_INTERVAL_MS || '');
+
+  // Try to use envvar or default to 30s
+  if (!isNaN(envInterval)) {
+    return envInterval;
+  } else {
+    return 30_000;
+  }
+})();
+
 export const REFRESH_KEY: string = process.env.REFRESH_KEY || '';

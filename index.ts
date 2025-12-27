@@ -8,11 +8,10 @@ import helmet from 'helmet';
 import { restartServices } from './lib/restart-services.js';
 import { FILES, type SourceDataFileType } from './files.js';
 import { isLocalhost } from './lib/is-localhost.js';
-import { getRealtimePbf, updateRealtimePbfs } from './lib/fetch-rt-pbfs.js';
+import { getRealtimePbf } from './lib/fetch-rt-pbfs.js';
 import { REALTIME_PBFS, type RealtimeSourceType } from './rt-pbfs.js';
 
 updateFiles();
-updateRealtimePbfs();
 const app = express();
 
 // Add logger
@@ -88,19 +87,6 @@ app.post('/update-data', async (req, res) => {
     res.sendStatus(403);
   }
 });
-
-app.post('/update-rt', async (req, res) => {
-  const reqIp = req.ip;
-  logger.info(`reqIp for /update-rt: ${reqIp}`);
-  // Only update data when request comes in from localhost
-  if (isLocalhost(reqIp)) {
-    await updateRealtimePbfs();
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(403);
-  }
-});
-
 
 // Start th server
 app.listen(PORT, () => {
