@@ -60,9 +60,9 @@ app.get('/checksums', (req, res) => {
 });
 
 for(const key of Object.keys(REALTIME_PBFS)) {
-  app.get(`/rt/${key}.pbf`, (req, res) => {
+  app.get(`/rt/${key}.pbf`,async  (req, res) => {
     const pbfName = key as RealtimeSourceType;
-    const buff = getRealtimePbf(pbfName);
+    const buff = await getRealtimePbf(pbfName);
     if (!buff) {
       res.sendStatus(404);
       return;
