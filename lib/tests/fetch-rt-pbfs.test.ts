@@ -1,5 +1,5 @@
 import { expect, test, vi, beforeEach, afterEach } from 'vitest';
-import { getRealtimePbf, resetInternaPbfCacheState } from '../fetch-rt-pbfs.js';
+import { getRealtimePbf, resetInternalPbfCacheState } from '../fetch-rt-pbfs.js';
 
 vi.mock('../../env.js', () => {
   return {
@@ -21,7 +21,7 @@ beforeEach(() => {
 // 2. Clean up after each test
 afterEach(() => {
   vi.restoreAllMocks();
-  resetInternaPbfCacheState();
+  resetInternalPbfCacheState();
 })
 
 test('it should update only once for multiple requests', async () => {

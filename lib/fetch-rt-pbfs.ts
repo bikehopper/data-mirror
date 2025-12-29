@@ -84,7 +84,7 @@ const updateRealtimePbfs = async (): Promise<void> => {
   } 
 
   const updatePromiseStash = updatePromise;
-  // Set the global ref to null do denote that no updates are in flight
+  // Set the global ref to null to denote that no updates are in flight
   updatePromise = null;
   return updatePromiseStash;
 };
@@ -95,7 +95,7 @@ export const getRealtimePbf = async (name: RealtimeSourceType): Promise<Buffer |
   return pbfCache.get(name);
 };
 
-export const resetInternaPbfCacheState = () => {
+export const resetInternalPbfCacheState = () => {
   lastUpdateTime = -1;
   pbfCache.clear();
   updatePromise = null;
