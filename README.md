@@ -20,6 +20,11 @@ If setting up for the Bay Area, set the following env vars:
 ```
 API_511_KEY=<API key obtained from https://511.org/>
 ```
+and optionally if you want to mirror gtfs-rt feeds, you will need a pool of api keys from 511.org.
+This is set as a comma separated list
+```
+API_511_KEY_POOL=<key1>,<key2>,<key3>
+```
 
 If setting up for a different region, you need the full url's for both GTFS and OSM data
 

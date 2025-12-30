@@ -7,6 +7,9 @@ import logger from './lib/logger.js';
 import helmet from 'helmet';
 import { restartServices } from './lib/restart-services.js';
 import { FILES, type SourceDataFileType } from './files.js';
+import { isLocalhost } from './lib/is-localhost.js';
+import { getRealtimePbf } from './lib/fetch-rt-pbfs.js';
+import { REALTIME_PBFS, type RealtimeSourceType } from './rt-pbfs.js';
 
 updateFiles();
 const app = express();
@@ -56,11 +59,27 @@ app.get('/checksums', (req, res) => {
   res.json(json);
 });
 
+for(const key of Object.keys(REALTIME_PBFS)) {
+  app.get(`/rt/${key}.pbf`,async  (req, res) => {
+    const pbfName = key as RealtimeSourceType;
+    const buff = await getRealtimePbf(pbfName);
+    if (!buff) {
+      res.sendStatus(404);
+      return;
+    }
+
+    res
+      .header('Cache-Control', 'max-age=0')
+      .status(200)
+      .send(buff);
+  });
+}
+
 app.post('/update-data', async (req, res) => {
   const reqIp = req.ip;
   logger.info(`reqIp for /update-data: ${reqIp}`);
   // Only update data when request comes in from localhost
-  if (reqIp && (reqIp === '::ffff:127.0.0.1' || reqIp === '::1')) {
+  if (isLocalhost(reqIp)) {
     await updateFiles();
     await restartServices();
     res.sendStatus(200);
@@ -68,7 +87,6 @@ app.post('/update-data', async (req, res) => {
     res.sendStatus(403);
   }
 });
-
 
 // Start th server
 app.listen(PORT, () => {

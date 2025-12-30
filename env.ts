@@ -11,4 +11,22 @@ export const ELEVATORS_CSV_URL: string = process.env.ELEVATORS_CSV_URL ||
 export const ELEVATION_URL: string = process.env.ELEVATION_URL ||
   'https://github.com/bikehopper/manual-datafiles/raw/refs/heads/main/elevation.tgz';
 
+export const API_511_KEY_POOL = process.env.API_511_KEY_POOL?.split(',').map((key) => key.trim());
+
+// Using template-strings here so that we can replace {API_KEY} with a different ket from API_511_KEY_POOL
+export const GTFS_RT_TRIP_UPDATES_URL_TEMPLATE = 'http://api.511.org/transit/tripupdates?api_key={API_KEY}&agency=RG';
+export const GTFS_RT_VEHICLE_POSITIONS_URL_TEMPLATE = 'http://api.511.org/transit/vehiclepositions?api_key={API_KEY}&agency=RG';
+export const GTFS_RT_SERVICE_ALERTS_URL_TEMPLATE = 'http://api.511.org/transit/servicealerts?api_key={API_KEY}&agency=RG';
+
+export const GTFS_RT_UPDATE_INTERVAL_MS = ((): number => {
+  const envInterval = parseInt(process.env.GTFS_RT_UPDATE_INTERVAL_MS || '');
+
+  // Try to use envvar or default to 30s
+  if (!isNaN(envInterval)) {
+    return envInterval;
+  } else {
+    return 30_000;
+  }
+})();
+
 export const REFRESH_KEY: string = process.env.REFRESH_KEY || '';
