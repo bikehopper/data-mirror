@@ -1,5 +1,5 @@
 export const fetchBlob = async (url: string, logger: (msg: string) => void, skipProgress: boolean = false): Promise<Buffer> => {
-  logger(`Dowloading from ${url}`);
+  logger(`Downloading from ${url}`);
 
   const res = await fetch(url);
   if (res.status === 200) {
